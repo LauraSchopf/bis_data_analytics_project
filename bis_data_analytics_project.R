@@ -21,12 +21,17 @@ user_features <- traveldata %>%
 features_scaled <- scale(user_features[,-1])  # remove user_id
 
 set.seed(123)
-sample_300 <- features_scaled[sample(nrow(features_scaled), 300), ]
+idx <- sample(nrow(user_features), 300)
+
+sample_scaled <- features_scaled[idx, ]
+sample_users  <- user_features[idx, ]  # same users
 
 # Hierarchical clustering
-dist_mat <- dist(sample_300)
+dist_mat <- dist(sample_scaled, method = "euclidean")
 hc <- hclust(dist_mat, method = "ward.D2")
-plot(hc, main = "Hierarchical Clustering of Users (Ward, n=300)")
+
+plot(hc, labels = FALSE, hang = -1,
+     main = "Hierarchical Clustering of Users (Ward, n=300)")
 
 # Cutting dendrogram
 
@@ -36,11 +41,15 @@ table(clusters)
 
 # Adding cluster labels
 
-sample_users <- user_features[sample(nrow(user_features), 300), ]
-sample_users$cluster <- clusters
+sample_users$cluster <- factor(clusters)
 
-# Means per cluster 
-aggregate(sample_users[,-1], by = list(cluster = sample_users$cluster), mean)
+aggregate(sample_users %>% select(-user_id),
+          by = list(cluster = sample_users$cluster),
+          mean)
+
+#check cluster sizes
+table(sample_users$cluster)
+
 
 
 
