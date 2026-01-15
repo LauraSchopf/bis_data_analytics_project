@@ -51,7 +51,40 @@ aggregate(sample_users %>% select(-user_id),
 table(sample_users$cluster)
 
 
+# full standardized feature matrix, no sampling
+features_full_scaled <- scale(user_features[,-1])  # remove user_id
 
+# run k-means with k=4
+set.seed(123)
+
+kmeans_4 <- kmeans(
+  features_full_scaled,
+  centers = 4,
+  nstart = 25
+)
+
+# attach cluster labels
+user_features$cluster_k4 <- factor(kmeans_4$cluster)
+
+# Check cluster sizes
+table(user_features$cluster_k4)
+
+#
+aggregate(
+  user_features %>% select(-user_id),
+  by = list(cluster = user_features$cluster_k4),
+  mean
+)
+
+# evaluate cluster quality
+library(cluster)
+
+sil_k4 <- silhouette(
+  kmeans_4$cluster,
+  dist(features_full_scaled)
+)
+
+mean(sil_k4[, 3])
 
 
 
