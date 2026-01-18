@@ -76,17 +76,37 @@ aggregate(
   mean
 )
 
-# evaluate cluster quality
+# evaluate cluster quality -> too computationally intensive, computer froze up
 library(cluster)
 
-sil_k4 <- silhouette(
-  kmeans_4$cluster,
-  dist(features_full_scaled)
+#sil_k4 <- silhouette(
+#  kmeans_4$cluster,
+#  dist(features_full_scaled)
+#)
+
+#evaluating cluster quality on a random sample of the observations
+set.seed(123)
+
+eval_idx <- sample(nrow(features_full_scaled), 500)
+features_eval <- features_full_scaled[eval_idx, ]
+clusters_eval <- kmeans_4$cluster[eval_idx]
+
+#compute silhouette on sample
+sil_sample <- silhouette(
+  clusters_eval,
+  dist(features_eval)
 )
 
-mean(sil_k4[, 3])
+mean(sil_sample[, 3])
+#mean of sil_sample is 0.3237394
 
+#WSS on full data
+wss <- sapply(3:6, function(k) {
+  kmeans(features_full_scaled, centers = k, nstart = 10)$tot.withinss
+})
 
+wss
+# results of wss [1] 293356.7 257236.4 216643.5 199893.8
 
 
 
