@@ -69,7 +69,7 @@ user_features$cluster_k4 <- factor(kmeans_4$cluster)
 # Check cluster sizes
 table(user_features$cluster_k4)
 
-#
+# see aggregate values for each cluster and variable
 aggregate(
   user_features %>% select(-user_id),
   by = list(cluster = user_features$cluster_k4),
@@ -108,5 +108,80 @@ wss <- sapply(3:6, function(k) {
 wss
 # results of wss [1] 293356.7 257236.4 216643.5 199893.8
 
+#creating some visuals
+
+#silhouette analysis plot
+#install.packages("factoextra")
+library(factoextra)
+library(FactoMineR)
+# Visualize kmeans clustering
 
 
+# Explicit PCA (already scaled, so scale.unit = FALSE)
+pca_res <- PCA(features_full_scaled, scale.unit = FALSE, graph = FALSE)
+pca_coords <- pca_res$ind$coord
+#calculate axes
+
+
+# Visualize clusters in PCA space
+fviz_cluster(
+  kmeans_4,
+  data = pca_coords,
+  geom = "point",
+  ellipse.type = "norm",
+  repel = TRUE
+) +
+  coord_cartesian(xlim = c(-4,6), ylim = c(-10,4)) +
+  theme_minimal() +
+  ggtitle("K-means Clusters (PCA projection)")
+
+
+fviz_silhouette(sil_sample, label = FALSE, print.summary = TRUE)
+
+#k=5 might provide better clusters according to WSS
+# run k-means with k=5
+set.seed(123)
+
+kmeans_5 <- kmeans(
+  features_full_scaled,
+  centers = 5,
+  nstart = 25
+)
+
+# attach cluster labels
+user_features$cluster_k5 <- factor(kmeans_5$cluster)
+
+# Check cluster sizes
+table(user_features$cluster_k5)
+
+# see aggregate values for each cluster and variable
+aggregate(
+  user_features %>% select(-user_id),
+  by = list(cluster = user_features$cluster_k5),
+  mean
+)
+
+#evaluating cluster quality on a random sample of the observations
+
+clusters_eval5 <- kmeans_5$cluster[eval_idx]
+
+#compute silhouette on sample
+sil_sample5 <- silhouette(
+  clusters_eval5,
+  dist(features_eval)
+)
+
+mean(sil_sample5[, 3])
+#silhouette is 0.335
+
+# for k=5 Visualize clusters in PCA space
+fviz_cluster(
+  kmeans_5,
+  data = pca_coords,
+  geom = "point",
+  ellipse.type = "norm",
+  repel = TRUE
+) +
+  coord_cartesian(xlim = c(-4,6), ylim = c(-10,4)) +
+  theme_minimal() +
+  ggtitle("K-means Clusters for k=5 (PCA projection)")
