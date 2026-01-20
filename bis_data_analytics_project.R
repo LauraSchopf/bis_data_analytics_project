@@ -143,8 +143,10 @@ wss
 ## PCA VISUALIZATION OF CLUSTERS
 ############################################################
 
-# silhouette analysis plot
-# install.packages("factoextra")
+# Silhouette analysis plot
+install.packages("factoextra")
+install.packages("emmeans")
+install.packages("FactoMineR")
 
 library(factoextra)
 library(FactoMineR)
