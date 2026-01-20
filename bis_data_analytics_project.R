@@ -175,7 +175,7 @@ mean(sil_sample5[, 3])
 #silhouette is 0.335
 
 # for k=5 Visualize clusters in PCA space
-fviz_cluster(
+p <- fviz_cluster(
   kmeans_5,
   data = pca_coords,
   geom = "point",
@@ -185,3 +185,7 @@ fviz_cluster(
   coord_cartesian(xlim = c(-4,6), ylim = c(-10,4)) +
   theme_minimal() +
   ggtitle("K-means Clusters for k=5 (PCA projection)")
+
+print(p)
+
+
