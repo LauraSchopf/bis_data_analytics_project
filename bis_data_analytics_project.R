@@ -39,16 +39,22 @@ sample_users  <- user_features[idx, ]   # same users, unscaled
 dist_mat <- dist(sample_scaled, method = "euclidean")
 
 # Apply Ward's hierarchical clustering (minimizes within-cluster variance)
-hc <- hclust(dist_mat, method = "ward.D2")
+hc300 <- hclust(dist_mat, method = "ward.D2")
 
 # Plot dendrogram
-plot(hc, labels = FALSE, hang = -1,
+plot(hc300, labels = FALSE, hang = -1,
      main = "Hierarchical Clustering of Users (Ward, n=300)")
 
 # Cut the dendrogram into k clusters based on visual inspection
 k <- 4
 clusters <- cutree(hc, k = k)
 table(clusters)
+
+# Draw cut line at the large linkage gap (around height 18–20)
+abline(h = 19, col = "red", lty = 2, lwd = 2)
+
+# Show the k = 4 clusters
+rect.hclust(hc300, k = 4, border = "blue")
 
 # Attach cluster labels to users
 
@@ -62,6 +68,15 @@ aggregate(sample_users %>% select(-user_id),
 
 # Check cluster sizes
 table(sample_users$cluster)
+
+## Robustness check with sample size n = 500
+set.seed(123)
+idx500 <- sample(nrow(user_features), 500)
+hc500 <- hclust(dist(scale(user_features[idx500, -1])), method = "ward.D2")
+plot(hc500, labels = FALSE, main = "Hierarchical Clustering (n = 500)")
+abline(h = 23, col = "red", lty = 2)  # example cut height
+rect.hclust(hc500, k = 4, border = "blue")
+
 
 ############################################################
 ## K-MEANS CLUSTERING (FULL DATA)
