@@ -111,7 +111,8 @@ wss
 #creating some visuals
 
 #silhouette analysis plot
-#install.packages("factoextra")
+#used factoextra package to visualize k-means analysis
+install.packages("factoextra")
 library(factoextra)
 library(FactoMineR)
 # Visualize kmeans clustering
